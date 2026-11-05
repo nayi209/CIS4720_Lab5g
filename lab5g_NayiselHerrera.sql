@@ -216,17 +216,29 @@ CALL list_students();
 -- Copy the skeleton from the handout and write the INSERT.
 -- =================================================================
 
--- your comment goes here
--- your statements go here
-
+--create a procedure that 
+-- adds one test score and keeps that student's gpa correct
+CREATE PROCEDURE add_score(IN p_test_name VARCHAR(20),
+IN p_student_id INT,
+IN p_score FLOAT)
+BEGIN
+-- job one: store the new score
+insert into test_score (test_name, student_id, score)
+    values (p_test_name, p_student_id, p_score);
+-- job two: recalculate that one student's gpa
+UPDATE students
+SET gpa = calculate_gpa(p_student_id)
+WHERE student_id = p_student_id;
+END
 
 -- =================================================================
 -- STEP 4. Use add_score, and watch the gpa change
 -- =================================================================
 
--- your comment goes here
--- your statements go here
-
+--call the stored procedure add_score twice
+CALL add_score('quiz4', 5, 88);
+CALL add_score('quiz4', 1, 100);
+CALL list_students();
 
 -- =================================================================
 -- STEP 5. Write record_attendance
@@ -234,16 +246,23 @@ CALL list_students();
 -- Most of this one is yours. The handout walks you through it.
 -- =================================================================
 
--- your comment goes here
--- your statements go here
-
+--write stored procedure record_attendance
+CREATE PROCEDURE record_attendance(IN p_student_id INT,
+IN p_status VARCHAR(10))
+BEGIN
+-- job one: store the new attendance record
+INSERT INTO attendance (student_id, status)
+    VALUES (p_student_id, p_status);
+END
 
 -- =================================================================
 -- STEP 6. Test record_attendance
 -- =================================================================
 
--- your comment goes here
--- your statements go here
+--call stored procedure record_attendance.
+--record student 2 as "absent"
+CALL record_attendance(2, 'absent');
+SELECT * FROM attendance;
 
 
 -- =================================================================
@@ -252,16 +271,29 @@ CALL list_students();
 -- Copy the skeleton and write the DELETE.
 -- =================================================================
 
--- your comment goes here
--- your statements go here
+-- removes one named test score for one student
+CREATE PROCEDURE remove_score(IN p_student_id INT,
+IN p_test_name VARCHAR(20))
+BEGIN
+-- delete only the row that matches BOTH values
+DELETE FROM test_scores
+WHERE student_id = p_student_id
+AND test_name = p_test_name;
+SELECT CONCAT("The test name ", p_test_name, " for student_id",
+ CAST(p_student_id AS CHAR),
+ " has been deleted.") AS message;
+END
 
 
 -- =================================================================
 -- STEP 8. Test remove_score
 -- =================================================================
 
--- your comment goes here
--- your statements go here
+-- remove quiz4 for sytudent 1 by calling the remove_score
+--the after delete trigger is already created and runs automatically
+CALL remove_score(1, 'quiz4');
+SELECT * FROM student
+WHERE student_id =1;
 
 
 -- =================================================================
@@ -270,17 +302,47 @@ CALL list_students();
 -- Under each call, a comment on what happened and what should have.
 -- =================================================================
 
--- your comment goes here
--- your statements go here
+--call procedures and documents results
+CALL add_score("quiz5", 4, -20);
+--inders scores is 48.33 and a score of less than zero should not be accepted
 
+CALL remove_score(4, "quiz5");
+CALL list_students;
 
+CALL record_attendance(9, "present");
 -- =================================================================
 -- STEP 10. List every routine in your schema
 -- =================================================================
 
--- your comment goes here
--- your statements go here
+SELECT *
+FROM test_scores;
 
+/*insert into test_scores(student_id, test_name, score)
+values (3, "quiz4", 89);*/
+
+--drop procedure student_count;
+create procedure student_count(in p_student_id int, out p_count int)
+READS SQL DATA
+BEGIN
+    SELECT COUNT(*)
+    INTO p_count
+    FROM test_scores
+    WHERE student_id = p_student_id;
+
+    IF p_count = 0 THEN
+        SELECT CONCAT('NO student with id ', p_student_id) AS Message;
+     ELSEIF p_count > 3 THEN
+         SELECT CONCAT('This student with id', p_student_id, ' has taken ' , p_count, 'tests !') AS Message;
+     ELSE
+         SELECT CONCAT('studnet ' , p_student_id, 'exists') AS Message;
+    END IF;
+END;
+
+CALL student_count (2,@n);
+SELECT @n AS student_count;
+
+CALL student_count(3,@n);
+SELECT @n AS student_count;
 
 -- =================================================================
 -- STEP 11 and 12. Push to GitHub and submit the URL
