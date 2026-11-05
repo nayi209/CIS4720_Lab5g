@@ -13,6 +13,20 @@
             "name": "lab5g",
             "database": "information_schema",
             "username": "root"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "cis_students_db",
+            "database": "cis_students_db",
+            "username": "root"
         }
     ]
 }
