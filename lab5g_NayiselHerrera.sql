@@ -310,10 +310,23 @@ CALL remove_score(4, "quiz5");
 CALL list_students;
 
 CALL record_attendance(9, "present");
+--this call failed because of foreign key constraint.
+--student_id 9 does not exist. 
 -- =================================================================
 -- STEP 10. List every routine in your schema
 -- =================================================================
 
+--list every routine in schema
+SELECT routine_name, routine_type
+FROM information_schema.routines
+WHERE routine_schema = 'cis_students_db'
+ORDER BY routine_name;
+
+-- =================================================================
+-- STEP 11 and 12. Push to GitHub and submit the URL
+--
+-- Nothing to write here. Follow the handout.
+-- =================================================================
 SELECT *
 FROM test_scores;
 
@@ -343,12 +356,3 @@ SELECT @n AS student_count;
 
 CALL student_count(3,@n);
 SELECT @n AS student_count;
-
--- =================================================================
--- STEP 11 and 12. Push to GitHub and submit the URL
---
--- Nothing to write here. Follow the handout.
--- =================================================================
-
--- your comment goes here
--- your statements go here
